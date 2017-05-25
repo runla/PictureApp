@@ -23,6 +23,17 @@ public class PictureFirstBean extends BmobObject{
     //图片套图的张数
     private String imageCount;
 
+    //类别名称
+    private String categoryName;
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
     public PictureFirstBean() {
     }
 

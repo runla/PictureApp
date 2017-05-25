@@ -35,7 +35,7 @@ import static com.example.administrator.pictureapp.common.ApiHelper.TEMPERAMENT_
 
 public class MainActivity extends AppCompatActivity implements JsoupUtil.PageCallback{
 
-    private String[] category = new String[16];
+    private String[] categoryUrl = new String[16];
     private String[] categoryName = new String[16];
 
     @Override
@@ -44,46 +44,49 @@ public class MainActivity extends AppCompatActivity implements JsoupUtil.PageCal
         setContentView(R.layout.activity_main);
         initData();
         for (int i = 0; i < 16; i++) {
-            JsoupUtil.Jsoup(this);
+            JsoupUtil.Jsoup(categoryUrl[i],i,categoryName[i],this);
         }
 //        getData();
     }
     @Override
-    public void pageUrl(String nextUrl) {
-
+    public void pageUrl(String url, int category, String categoryName) {
+        if (!"".equals(url)) {
+            JsoupUtil.Jsoup(url,category,categoryName,this);
+        }
     }
+
     private void initData(){
-        category[0] = PORTRAIT_URL;
+        categoryUrl[0] = PORTRAIT_URL;
         categoryName[0] = "写真";
-        category[1] = TEMPERAMENT_URL;
+        categoryUrl[1] = TEMPERAMENT_URL;
         categoryName[1] = "气质";
-        category[2] = LOVELY_URL;
+        categoryUrl[2] = LOVELY_URL;
         categoryName[2] = "萌女";
-        category[3] = SCHOOL_FLOWER;
+        categoryUrl[3] = SCHOOL_FLOWER;
         categoryName[3] = "校花";
-        category[4] = STREET_SHOOT;
+        categoryUrl[4] = STREET_SHOOT;
         categoryName[4] = "街拍";
-        category[5] = NON_MAINSTREAM_URL;
+        categoryUrl[5] = NON_MAINSTREAM_URL;
         categoryName[5] = "非主流";
-        category[6] = LEGS_URL;
+        categoryUrl[6] = LEGS_URL;
         categoryName[6] = "美腿";
-        category[7] = PURE_URL;
+        categoryUrl[7] = PURE_URL;
         categoryName[7] = "清纯";
-        category[8] = SEXY_URL;
+        categoryUrl[8] = SEXY_URL;
         categoryName[8] = "性感";
-        category[9] = JAPAN_AND_KOREAN_URL;
+        categoryUrl[9] = JAPAN_AND_KOREAN_URL;
         categoryName[9] = "日韩";
-        category[10] = CAR_MODEL_URL;
+        categoryUrl[10] = CAR_MODEL_URL;
         categoryName[10] = "车模";
-        category[11] = MODEL_URL;
+        categoryUrl[11] = MODEL_URL;
         categoryName[11] = "模特";
-        category[12] = BEAUTIFUL_GIRL_URL;
+        categoryUrl[12] = BEAUTIFUL_GIRL_URL;
         categoryName[12] = "女神图片";
-        category[13] = BEAUTIFUL_CHARM_URL;
+        categoryUrl[13] = BEAUTIFUL_CHARM_URL;
         categoryName[13] = "美女魅惑";
-        category[14] = PHOTO_URL;
+        categoryUrl[14] = PHOTO_URL;
         categoryName[14] = "写真摄影";
-        category[15] = COSPLAY_GIRL_URL;
+        categoryUrl[15] = COSPLAY_GIRL_URL;
         categoryName[15] = "cosplay美女";
     }
 
@@ -102,11 +105,12 @@ public class MainActivity extends AppCompatActivity implements JsoupUtil.PageCal
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 Document document = Jsoup.parse(response.body().byteStream(),null,null);
-                JsoupUtil.handlePictureList(document,MainActivity.this);
+             //   JsoupUtil.handlePictureList(document,MainActivity.this);
             }
 
         });
     }
+
 
 
 }

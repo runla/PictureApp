@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.example.administrator.pictureapp.bean.PictureFirstBean;
 import com.example.administrator.pictureapp.bean.PictureListBean;
-import com.example.administrator.pictureapp.common.ApiHelper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,21 +17,23 @@ import java.util.List;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.SaveListener;
 
+import static com.example.administrator.pictureapp.common.ApiHelper.BASE_URL;
+
 /**
  * Created by funnyrun on 2017/5/24.
  */
 
 public class JsoupUtil {
 
-    public static void Jsoup(final PageCallback pageCallback){
+    public static void Jsoup(final String url, final int category, final String categoryName, final PageCallback pageCallback){
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Document document = Jsoup.connect(ApiHelper.PORTRAIT_URL)
+                    Document document = Jsoup.connect(url)
                             .userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36")
                             .get();
-                    handlePictureList(document,pageCallback);
+                    handlePictureList(category,categoryName,document,pageCallback);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -44,7 +45,7 @@ public class JsoupUtil {
      * @param document
      * @return
      */
-    public static PictureListBean handlePictureList(Document document,PageCallback pageCallback){
+    public static PictureListBean handlePictureList(int category,String categoryName,Document document,PageCallback pageCallback){
         PictureFirstBean pictureFirstBean = new PictureFirstBean();
 
         PictureListBean pictures = new PictureListBean();
@@ -61,7 +62,8 @@ public class JsoupUtil {
             String imageDescribe = link.select("dt").select("img").attr("alt");
 
 
-            pictureFirstBean.setCategory(0);
+            pictureFirstBean.setCategory(category);
+            pictureFirstBean.setCategoryName(categoryName);
             pictureFirstBean.setHtmlUrl(htmlUrl);
             pictureFirstBean.setImageCount(imageCount);
             pictureFirstBean.setImageDescribe(imageDescribe);
@@ -94,18 +96,20 @@ public class JsoupUtil {
 
         //这个是页数的选择的处理 （上一页、1、2、3、4、下一页）
         Elements pages = document.select("div.flym").first().getElementsByTag("a");
+        String url = "";
         for(Element page:pages){
             //找到有下一页字样的说明还可以加载更多
             String text = page.text();
             if ("下一页".equals(text)) {
                 pictures.setNextPageUrl(page.attr("href"));
+                url = BASE_URL+pictures.getNextPageUrl();
             }
         }
-        pageCallback.pageUrl(pictures.getNextPageUrl());
+        pageCallback.pageUrl(url,category,categoryName);
         return pictures;
     }
 
     public interface PageCallback{
-        void pageUrl(String nextUrl);
+        void pageUrl(String url,int category,String categoryName);
     }
 }
