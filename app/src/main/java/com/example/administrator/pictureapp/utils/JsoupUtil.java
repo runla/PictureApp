@@ -1,5 +1,8 @@
 package com.example.administrator.pictureapp.utils;
 
+import android.util.Log;
+
+import com.example.administrator.pictureapp.bean.PictureFirstBean;
 import com.example.administrator.pictureapp.bean.PictureListBean;
 import com.example.administrator.pictureapp.common.ApiHelper;
 
@@ -12,21 +15,24 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.SaveListener;
+
 /**
  * Created by funnyrun on 2017/5/24.
  */
 
 public class JsoupUtil {
 
-    public static void Jsoup(){
+    public static void Jsoup(final PageCallback pageCallback){
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Document document = Jsoup.connect(ApiHelper.LEGS_URL)
+                    Document document = Jsoup.connect(ApiHelper.PORTRAIT_URL)
                             .userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36")
                             .get();
-                    handlePictureList(document);
+                    handlePictureList(document,pageCallback);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -38,7 +44,9 @@ public class JsoupUtil {
      * @param document
      * @return
      */
-    public static PictureListBean handlePictureList(Document document){
+    public static PictureListBean handlePictureList(Document document,PageCallback pageCallback){
+        PictureFirstBean pictureFirstBean = new PictureFirstBean();
+
         PictureListBean pictures = new PictureListBean();
         List<PictureListBean.PictureBean> pictureBeanList = new ArrayList<>();
 
@@ -47,6 +55,29 @@ public class JsoupUtil {
         Element content = document.select("div.lb_box").first();
         Elements elements = content.select("dl");
         for(Element link :elements){
+            String imageUrl = link.select("dt").select("img").attr("src");
+            String htmlUrl = link.select("dd").select("a").attr("href");
+            String imageCount = link.select("dd").select("span").text();
+            String imageDescribe = link.select("dt").select("img").attr("alt");
+
+
+            pictureFirstBean.setCategory(0);
+            pictureFirstBean.setHtmlUrl(htmlUrl);
+            pictureFirstBean.setImageCount(imageCount);
+            pictureFirstBean.setImageDescribe(imageDescribe);
+            pictureFirstBean.setImageUlr(imageUrl);
+            pictureFirstBean.save(new SaveListener<String>() {
+                @Override
+                public void done(String s, BmobException e) {
+                    if(e==null){
+                        Log.d("bmob","done: "+"创建数据成功：" + s);
+                    }else{
+                        Log.i("bmob","失败："+e.getMessage()+","+e.getErrorCode());
+                    }
+                }
+
+            });
+
             PictureListBean.PictureBean pictureBean = new PictureListBean.PictureBean();
             //图片 url
             pictureBean.setImageUlr(link.select("dt").select("img").attr("src"));
@@ -70,7 +101,11 @@ public class JsoupUtil {
                 pictures.setNextPageUrl(page.attr("href"));
             }
         }
-
+        pageCallback.pageUrl(pictures.getNextPageUrl());
         return pictures;
+    }
+
+    public interface PageCallback{
+        void pageUrl(String nextUrl);
     }
 }

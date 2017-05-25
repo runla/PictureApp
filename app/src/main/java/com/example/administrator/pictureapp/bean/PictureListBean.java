@@ -2,11 +2,13 @@ package com.example.administrator.pictureapp.bean;
 
 import java.util.List;
 
+import cn.bmob.v3.BmobObject;
+
 /**
  * Created by funnyrun on 2017/5/24.
  */
 
-public class PictureListBean {
+public class PictureListBean extends BmobObject {
     //下一页的 url
     private String nextPageUrl;
     private List<PictureBean> pictureBeanList;
