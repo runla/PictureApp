@@ -2,6 +2,9 @@ package com.example.administrator.pictureapp;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.example.administrator.pictureapp.utils.JsoupUtil;
 
@@ -19,7 +22,6 @@ import okhttp3.Response;
 import static com.example.administrator.pictureapp.common.ApiHelper.BEAUTIFUL_CHARM_URL;
 import static com.example.administrator.pictureapp.common.ApiHelper.BEAUTIFUL_GIRL_URL;
 import static com.example.administrator.pictureapp.common.ApiHelper.CAR_MODEL_URL;
-import static com.example.administrator.pictureapp.common.ApiHelper.COSPLAY_GIRL_URL;
 import static com.example.administrator.pictureapp.common.ApiHelper.JAPAN_AND_KOREAN_URL;
 import static com.example.administrator.pictureapp.common.ApiHelper.LEGS_URL;
 import static com.example.administrator.pictureapp.common.ApiHelper.LOVELY_URL;
@@ -35,24 +37,67 @@ import static com.example.administrator.pictureapp.common.ApiHelper.TEMPERAMENT_
 
 public class MainActivity extends AppCompatActivity implements JsoupUtil.PageCallback{
 
-    private String[] categoryUrl = new String[16];
-    private String[] categoryName = new String[16];
+    private String[] categoryUrl = new String[15];
+    private String[] categoryName = new String[15];
+
+    private Button btn_next;
+    private Button btn_next1;
+    private int count = 9;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initData();
-        for (int i = 0; i < 16; i++) {
-            JsoupUtil.Jsoup(categoryUrl[i],i,categoryName[i],this);
-        }
+        btn_next = (Button) findViewById(R.id.btn_next);
+        btn_next1 = (Button) findViewById(R.id.btn_next1);
+        JsoupUtil.Jsoup(categoryUrl[count],count,categoryName[count],MainActivity.this);
+        btn_next.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                count++;
+                JsoupUtil.Jsoup(categoryUrl[count],count,categoryName[count],MainActivity.this);
+            }
+        });
+
+        btn_next1.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                btn_next1.setClickable(false);
+                btn_next1.setBackgroundResource(R.color.gray);
+                JsoupUtil.Jsoup(nextPageUrl,mycategory,mycategoryName,MainActivity.this);
+            }
+        });
+//        for (int i = 0; i < 16; i++) {
+//            JsoupUtil.Jsoup(categoryUrl[i],i,categoryName[i],this);
+//        }
 //        getData();
     }
+    boolean flag = false;
+    private String nextPageUrl;
+    private String mycategoryName;
+    private int mycategory;
     @Override
     public void pageUrl(String url, int category, String categoryName) {
         if (!"".equals(url)) {
+            flag = true;
+            nextPageUrl = url;
+            mycategory = category;
+            mycategoryName = categoryName;
             JsoupUtil.Jsoup(url,category,categoryName,this);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    btn_next1.setClickable(true);
+                    btn_next1.setBackgroundResource(R.color.colorAccent);
+                }
+            });
+            return;
         }
+//        ShowToast.Long("这一分类结束了");
+        Log.d("bmob1", "pageUrl: "+"这一分类结束了");
+//        Toast.makeText(this, "这一分类结束了", Toast.LENGTH_SHORT).show();
     }
 
     private void initData(){
@@ -86,8 +131,6 @@ public class MainActivity extends AppCompatActivity implements JsoupUtil.PageCal
         categoryName[13] = "美女魅惑";
         categoryUrl[14] = PHOTO_URL;
         categoryName[14] = "写真摄影";
-        categoryUrl[15] = COSPLAY_GIRL_URL;
-        categoryName[15] = "cosplay美女";
     }
 
     private void getData(){

@@ -37,7 +37,5 @@ public class ApiHelper {
     public static final String BEAUTIFUL_CHARM_URL = BASE_URL + "/c/6_20491.shtml";
     //写真摄影 14
     public static final String PHOTO_URL = BASE_URL + "/c/6_22812.shtml";
-    //cosplay美女 15
-    public static final String COSPLAY_GIRL_URL = BASE_URL + "/c/6_18332.shtml";
 
 }

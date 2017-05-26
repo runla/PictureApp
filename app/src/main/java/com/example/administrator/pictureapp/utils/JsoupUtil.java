@@ -72,9 +72,9 @@ public class JsoupUtil {
                 @Override
                 public void done(String s, BmobException e) {
                     if(e==null){
-                        Log.d("bmob","done: "+"创建数据成功：" + s);
+                        Log.d("bmob1","done: "+"创建数据成功：" + s);
                     }else{
-                        Log.i("bmob","失败："+e.getMessage()+","+e.getErrorCode());
+                        Log.i("bmob1","失败："+e.getMessage()+","+e.getErrorCode());
                     }
                 }
 
