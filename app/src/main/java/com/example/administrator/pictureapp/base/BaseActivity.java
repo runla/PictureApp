@@ -30,13 +30,28 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.setContentView(this.getContentView());
         activitieList.add(this);
-        initParms(savedInstanceState);
         EventBus.getDefault().register(this);
-
+        this.initParms(savedInstanceState);
         this.initView();
         this.initData();
         this.initEvent();
     }
+
+    protected abstract int getContentView();
+
+    //布局中Fragment的ID
+    protected abstract int getFragmentContentId();
+    /**
+     * [初始化参数] 在initView 之前调用
+     * @param parms
+     */
+    public abstract void initParms(Bundle parms);
+
+    protected abstract void initView();
+
+    protected abstract void initData();
+
+    protected abstract void initEvent();
 
     /**
      * 关闭所有的 activity
@@ -55,19 +70,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         EventBus.getDefault().unregister(this);
     }
 
-    protected abstract int getContentView();
-
-    /**
-     * [初始化参数] 在initView 之前调用
-     * @param parms
-     */
-    public abstract void initParms(Bundle parms);
-
-    protected abstract void initView();
-
-    protected abstract void initData();
-
-    protected abstract void initEvent();
 
     /**
      * 跳转到指定的Activity
@@ -121,90 +123,42 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
 
-    protected void replaceFragment(int id_content, Fragment fragment, int enter, int exit) {
+    protected void replaceFragmentAnim(Fragment fragment, int enter, int exit) {
         FragmentTransaction transaction = this.fragmentManager.beginTransaction();
         transaction.setCustomAnimations(enter, exit);
-        transaction.replace(id_content, fragment);
+        transaction.replace(getFragmentContentId(), fragment);
         transaction.commit();
     }
 
-    protected void replaceFragment(int id_content, Fragment fragment) {
-        this.replaceFragmentWithTag(id_content, fragment, (String)null);
-    }
-
-    protected void replaceFragmentWithTag(int id_content, Fragment fragment, String tag) {
+    protected void replaceFragment(Fragment fragment) {
         FragmentTransaction transaction = this.fragmentManager.beginTransaction();
-        transaction.replace(id_content, fragment, tag);
+        transaction.replace(getFragmentContentId(), fragment, fragment.getClass().getSimpleName());
         transaction.commit();
     }
 
-    protected void replaceFragmentToStack(int id_content, Fragment fragment, String tag) {
+    protected void replaceFragmentToStack(Fragment fragment) {
         FragmentTransaction transaction = this.fragmentManager.beginTransaction();
-        transaction.replace(id_content, fragment, tag).addToBackStack((String)null);
+        transaction.replace(getFragmentContentId(), fragment, fragment.getClass().getSimpleName());
+        transaction.addToBackStack(fragment.getClass().getSimpleName());
         transaction.commit();
     }
 
-    protected void addFragmentWithTagAnim(int id_content, Fragment fragment, int enter, int exit, String tag) {
+    protected void addFragmentWithAnim(Fragment fragment, int enter, int exit) {
         FragmentTransaction transaction = this.fragmentManager.beginTransaction();
         transaction.setCustomAnimations(enter, exit);
-        transaction.add(id_content, fragment, tag);
+        transaction.add(getFragmentContentId(), fragment, fragment.getClass().getSimpleName());
+        transaction.addToBackStack(fragment.getClass().getSimpleName());
         transaction.commit();
     }
 
-    protected void addFragmentWithTag(int id_content, Fragment fragment, String tag) {
+    protected void addFragmentWith(Fragment fragment) {
         FragmentTransaction transaction = this.fragmentManager.beginTransaction();
-        transaction.add(id_content, fragment, tag);
+        transaction.add(getFragmentContentId(), fragment, fragment.getClass().getSimpleName());
+        transaction.addToBackStack(fragment.getClass().getSimpleName());
         transaction.commit();
     }
 
-    /**
-     * 切换 fragment
-     * @param id_content
-     * @param fromFragment
-     * @param toFragment
-     */
-    protected void switchFragment(int id_content, Fragment fromFragment, Fragment toFragment) {
-        FragmentTransaction transaction = this.fragmentManager.beginTransaction();
-        if(toFragment.isAdded()) {
-            transaction.hide(fromFragment).show(toFragment).commit();
-        } else {
-            transaction.hide(fromFragment).add(id_content, toFragment).commit();
-        }
-    }
 
-
-    /**
-     * 切换 fragment，添加 tag
-     * @param id_content
-     * @param fromFragment
-     * @param toFragment
-     * @param tagOfTo
-     */
-    protected void switchFragmentWithTag(int id_content, Fragment fromFragment, Fragment toFragment, String tagOfTo) {
-        FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
-        if(toFragment.isAdded()) {
-            transaction.hide(fromFragment).show(toFragment).commit();
-        } else {
-            transaction.hide(fromFragment).add(id_content, toFragment, tagOfTo).commit();
-        }
-    }
-
-    /**
-     * 切换 fragment，有动画的
-     * @param id_content
-     * @param fromFragment
-     * @param toFragment
-     * @param enter
-     * @param eixt
-     */
-    protected void switchFragmentWithAnim(int id_content, Fragment fromFragment, Fragment toFragment, int enter, int eixt) {
-        FragmentTransaction transaction = this.fragmentManager.beginTransaction();
-        if(toFragment.isAdded()) {
-            transaction.hide(fromFragment).setCustomAnimations(enter, eixt).show(toFragment).commit();
-        } else {
-            transaction.hide(fromFragment).setCustomAnimations(enter, eixt).add(id_content, toFragment).commit();
-        }
-    }
 
     /**
      * 如果 fragment 已经添加到 activity 中，则将其显示
@@ -225,7 +179,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         if(this.fragmentManager != null && fragment != null) {
             this.fragmentManager.beginTransaction().remove(fragment).commit();
         }
-
     }
 
     /**
@@ -249,4 +202,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
     }
+
+    //移除fragment
+    protected void removeFragment() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+            getSupportFragmentManager().popBackStack();
+        } else {
+            finish();
+        }
+    }
+
 }
