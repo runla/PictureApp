@@ -14,7 +14,6 @@ import de.greenrobot.event.EventBus;
 /**
  * Created by funnyrun on 2017/6/2.
  */
-
 public abstract class BaseFragment extends Fragment{
 
     protected Activity hostActivity;
@@ -58,14 +57,13 @@ public abstract class BaseFragment extends Fragment{
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        SampleApplicationLike.getRefWatcher(getActivity()).watch(this);
         EventBus.getDefault().unregister(this);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-//        mListener = null;
+        fragmentCallback = null;
         hostActivity = null;
     }
 

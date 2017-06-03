@@ -16,10 +16,9 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 
 /**
- * Created by chenjianrun on 2017/6/1.
+ * Created by funnyrun on 2017/6/1.
  */
-
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity implements BaseFragment.FragmentCallback{
     protected final String TAG = this.getClass().getSimpleName();
     public static List<BaseActivity> activitieList = new ArrayList<>();
 
