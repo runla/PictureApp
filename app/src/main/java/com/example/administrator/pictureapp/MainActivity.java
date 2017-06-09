@@ -84,7 +84,8 @@ public class MainActivity extends AppCompatActivity implements JsoupUtil.PageCal
             nextPageUrl = url;
             mycategory = category;
             mycategoryName = categoryName;
-            JsoupUtil.Jsoup(url,category,categoryName,this);
+            MainActivity pageCallback = this;
+            JsoupUtil.Jsoup(url,category,categoryName, pageCallback);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
